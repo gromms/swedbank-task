@@ -1,0 +1,117 @@
+<mat-tab-group [selectedIndex]="selectedTab.value" (selectedIndexChange)="selectedTab.setValue($event)" color="primary" backgroundColor="primary">
+    <mat-tab label="Accounts">
+        <table mat-table [dataSource]="accountsDataSource" style="width: 99%; margin: auto;" class="mat-elevation-z8">
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> Name </th>
+                <td mat-cell *matCellDef="let account"> {{account.name}} </td>
+            </ng-container>
+            <ng-container matColumnDef="currency">
+                <th mat-header-cell *matHeaderCellDef> Currency </th>
+                <td mat-cell *matCellDef="let account"> {{account.currency}} </td>
+            </ng-container>
+            <ng-container matColumnDef="balance">
+                <th mat-header-cell *matHeaderCellDef> Balance </th>
+                <td mat-cell *matCellDef="let account"> {{account.balance}} </td>
+            </ng-container>
+            <ng-container matColumnDef="options">
+                <th mat-header-cell *matHeaderCellDef> Options </th>
+                <td mat-cell *matCellDef="let account">
+                    <button mat-mini-fab color="primary" (click)="editButtonClicked(account)">Edit</button>     
+                    <button mat-mini-fab color="primary" (click)="deleteButtonClicked(account)">Delete</button>     
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+        </table>
+    </mat-tab>
+
+    <mat-tab label="New Payment"> 
+        <form (ngSubmit)="submitPayment();" #newPaymentForm="ngForm">
+            <mat-form-field class="form-field">
+                <mat-label>Source Account</mat-label>
+                <mat-select [(ngModel)]="newPayment.sourceAccount" name="sourceAccount" (selectionChange)="paymentSourceAccountChanged()" required>
+                    <mat-option *ngFor="let account of accounts" [value]="account">
+                        {{ account.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="form-field">
+                <mat-label>Target Account</mat-label>
+                <mat-select [(ngModel)]="newPayment.targetAccount" name="targetAccount" [disabled]="newPayment.sourceAccount == null" required>
+                    <mat-option *ngFor="let account of accounts" [value]="account" [disabled]="newPayment.sourceAccount == account">
+                        {{ account.name }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field class="form-field width-10">
+                <mat-label>Amount</mat-label>
+                <input [(ngModel)]="newPayment.amount" #model="ngModel" name="amount" matInput placeholder="Amount" type="number" class="right-align" greaterThanZero required>
+                <mat-error *ngIf="model.hasError('forbiddenAmount')">Must be greater than 0</mat-error>
+                <span matSuffix style="margin-left: 5px;">{{newPayment.sourceAccount != null ? newPayment.sourceAccount.currency : ""}}&nbsp;</span>
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="submit" [disabled]="!newPaymentForm.form.valid">Save</button>
+        </form>
+        <div [hidden]="newPayment.sourceAccount == null">
+            Current balance: {{newPayment.sourceAccount == null ? "" : newPayment.sourceAccount.balance}}
+        </div>
+    </mat-tab>
+
+    <mat-tab label="New Account">
+        <form (ngSubmit)="addAccount();" #newAccountForm="ngForm">
+            <mat-form-field class="form-field">
+                <mat-label>Account Name</mat-label>
+                <input [(ngModel)]="newAccount.name" name="newAccountName" matInput placeholder="Account Name" required>
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Balance</mat-label>
+                <input [(ngModel)]="newAccount.balance" name="newAccountBalance" matInput type="number" placeholder="Balance" class="right-align" required>
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Currency</mat-label>
+                <mat-select [(ngModel)]="newAccount.currency" name="newAccountCurrency" required>
+                    <mat-option *ngFor="let currency of currencies" [value]="currency">
+                        {{ currency }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="submit" [disabled]="!newAccountForm.form.valid">Save</button>
+        </form>
+    </mat-tab>
+
+    <mat-tab label="Edit Account"> 
+        <mat-form-field class="form-field">
+            <mat-label>Select an account</mat-label>
+            <mat-select [(ngModel)]="selectedAccount" name="editedAccount" (selectionChange)="accountSelected()" required>
+                <mat-option *ngFor="let account of accounts" [value]="account">
+                    {{ account.name }}
+                </mat-option>
+            </mat-select>
+        </mat-form-field>
+        <form (ngSubmit)="editAccount()" #editedAccountForm="ngForm" [hidden]="selectedAccount.id == null">
+            <mat-form-field class="form-field">
+                <mat-label>Account Name</mat-label>
+                <input [(ngModel)]="editedAccount.name" name="editedAccountName" matInput placeholder="Account Name" required>
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Balance</mat-label>
+                <input [(ngModel)]="editedAccount.balance" name="editedAccountBalance" matInput type="number" placeholder="Balance" class="right-align" required>
+            </mat-form-field>
+
+            <mat-form-field class="form-field">
+                <mat-label>Currency</mat-label>
+                <mat-select [(ngModel)]="editedAccount.currency" name="editedAccountCurrency" required>
+                    <mat-option *ngFor="let currency of currencies" [value]="currency">
+                        {{ currency }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <button mat-flat-button color="primary" type="submit" [disabled]="!editedAccountForm.form.valid">Save</button>
+        </form>
+    </mat-tab>
+</mat-tab-group>
+
+
