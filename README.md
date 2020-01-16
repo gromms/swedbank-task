@@ -1,5 +1,6 @@
 # swedbank-task
 A simple bank account manager task for Swedbank employment interview.
+Backend is written in Java using Spring Boot and frontend is Angular.
 
 # Instructions
 * Compile angular frontend project. (Compiled files will be placed to resources/Public directory in the Java project)
